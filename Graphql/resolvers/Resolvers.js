@@ -1,22 +1,39 @@
 const Userdb = require('../../Database/Models/User');
 const Message = require('../../Database/Models/Messages');
 const bcrypt = require('bcrypt');
-const {UserInputError} = require('apollo-server-express')
+const {UserInputError , AuthenticationError} = require('apollo-server-express')
+const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv');
+dotenv.config({path:'config.env'})
 
+
+
+const secret = process.env.JWT_Secret;
 
 const resolvers ={
     Query :{
-        getAllUsers: async ()=>{
-           return await Userdb.find()
-        },
-        getProfiles: async ()=>{
-            // const ToShow = [];
-            const response = await Userdb.aggregate([{$sample: {size: 20}}]);
-            // response.map((res)=>{
-            // const userId = res._id.toString();
-            // })
-            // console.log(ToShow);
+        // getAllUsers: async ()=>{
+        //    return await Userdb.find()
+        // },
+        getProfiles: async (_, __, context)=>{
+            try{
+            let user
+            if(context.req && context.req.headers.authorization ){
+                const token = context.req.headers.authorization.split('Bearer ')[1]
+                jwt.verify(token , secret , (err , decodedToken)=>{
+                    if(err){
+                        throw new AuthenticationError('Unauthenticated')
+                    }
+                user = decodedToken
+                })
+            }
+
+            const response = await Userdb.aggregate([{$sample: {size: 20}}, {$match:{_id: { $ne: user._id}}} ]);
             return response
+        }catch(err){
+            console.log(err)
+            throw  err
+        }
 
         },
         getUser: async(parent , {id})=>{
@@ -38,21 +55,30 @@ const resolvers ={
             return result            
         },
         login: async(_,args)=>{
-            const {UserName , Password} = args
+            const {UserName , Password , Uid} = args
             let errors = {}
-            const username = UserName.trim();
             try{
+                if(UserName.trim() === ''){errors.username = 'Username must not be empty'}
+                if(Password.trim() === ''){errors.password = 'Password must not be empty'}
+                
+                if(Object.keys(errors).length > 0){
+                    throw new UserInputError('Bad input' , {errors})
+                }
+                
                 const user = await Userdb.findOne({UserName : UserName});
                 if(!user){
                     errors.username = "User not found"
                     throw new UserInputError('User not found', {errors})
-                }
+                }                
                 const correctPassword = await bcrypt.compare(Password , user.Password)
 
                 if(!correctPassword){ 
                     errors.password = "Wrong password"
                     throw new UserInputError('Wrong password' , {errors})
                 }
+
+                const token = jwt.sign({ UserName } , secret , {expiresIn: 60 * 60});
+                user.Token = token;
                 return user
             }catch(err){
                 console.log(err);

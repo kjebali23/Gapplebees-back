@@ -29,7 +29,11 @@ app.use(morgan('tiny'));
 // app.use(('/') , require('./Server/Routes/Routes'));
 
 async function startApolloServer(typeDefs, resolvers){
-    const server = new ApolloServer({typeDefs, resolvers})
+    const server = new ApolloServer({
+        typeDefs, 
+        resolvers,
+        context: (ctx)=> ctx,
+    })
     const app = express();
     await server.start();
     server.applyMiddleware({app, path: '/graphql'});

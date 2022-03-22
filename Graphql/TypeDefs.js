@@ -6,7 +6,7 @@ const typeDefs = gql`
 
 
     type user{
-        # Uid:String,
+        Uid:String,
         Email:String,
         Password:String,
         UserName: String,
@@ -18,6 +18,7 @@ const typeDefs = gql`
         Likes:[String],
         Matchs:[String],
         Notinterested:[String],
+        Token:String
     }
     type Message{
         # MessageId: String!
@@ -29,7 +30,7 @@ const typeDefs = gql`
 
     #Queries 
         type Query {
-            login(UserName:String! , Password:String!):user
+            login(UserName:String! , Password:String! , Uid:String):user
             getAllUsers: [user]
             getProfiles:[user]
             getUser(id: ID): user
@@ -37,7 +38,7 @@ const typeDefs = gql`
         }
 
         input userInput{
-            # Uid:String
+            Uid:String
             Email:String!
             Password:String!
             UserName:String!
