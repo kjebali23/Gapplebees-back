@@ -111,14 +111,15 @@ const resolvers ={
                         Email,
                         Password,
                         UserName,
-                        Country,
-                        Images,
-                        CarManufacturer,
-                        CarModel,
-                        CarProductionYear,
-                        Likes,
-                        Matchs,
-                        Notinterested} = args.user;
+                        // Country,
+                        // Images,
+                        // CarManufacturer,
+                        // CarModel,
+                        // CarProductionYear,
+                        // Likes,
+                        // Matchs,
+                        // Notinterested
+                    } = args;
             let errors = {}
 
             try{
@@ -146,14 +147,14 @@ const resolvers ={
                             Email,
                             Password,
                             UserName ,
-                            Country,
-                            Images,
-                            CarManufacturer,
-                            CarModel,
-                            CarProductionYear,
-                            Likes,
-                            Matchs,
-                            Notinterested
+                            // Country,
+                            // Images,
+                            // CarManufacturer,
+                            // CarModel,
+                            // CarProductionYear,
+                            // Likes,
+                            // Matchs,
+                            // Notinterested
                         });
 
                 await user.save();
