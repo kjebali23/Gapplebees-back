@@ -12,23 +12,23 @@ const secret = process.env.JWT_Secret;
 
 const resolvers ={
     Query :{
-        // getAllUsers: async ()=>{
-        //    return await Userdb.find()
-        // },
+       
         getProfiles: async (_, __, context)=>{
-            try{
-            let user
-            if(context.req && context.req.headers.authorization ){
-                const token = context.req.headers.authorization.split('Bearer ')[1]
-                jwt.verify(token , secret , (err , decodedToken)=>{
-                    if(err){
-                        throw new AuthenticationError('Unauthenticated')
+            try {
+                let user
+                if (context.req && context.req.headers.Authorization) {
+                  const token = context.req.headers.Authorization.split('Bearer ')[1]
+                  jwt.verify(token, secret, (err, decodedToken) => {
+                    if (err) {
+                      throw new AuthenticationError('Unauthenticated')
                     }
-                user = decodedToken
-                })
-            }
+                    user = decodedToken
+                  })
+                }
 
-            const response = await Userdb.aggregate([{$sample: {size: 20}}, {$match:{_id: { $ne: user._id}}} ]);
+            const response = await Userdb.aggregate([{$sample: {size: 20}},
+                //  {$match:{_id: { $ne: user_id}}}
+                 ]);
             return response
         }catch(err){
             console.log(err)
