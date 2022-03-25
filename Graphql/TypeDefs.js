@@ -1,7 +1,5 @@
 const {gql} = require('apollo-server-express')
-// const GetAllUsers = require('../Services/Profile-service/profile');
 
-// const data = GetAllUsers();
 const typeDefs = gql`
 
 
@@ -33,7 +31,7 @@ const typeDefs = gql`
             login(UserName:String! , Password:String! , Uid:String):user
             getAllUsers: [user]
             getProfiles:[user]
-            getUser(id: ID): user
+            getUser(id: ID ): user
             getMessages(from:String! , to:String! , created_at:String):[Message]
         }
 

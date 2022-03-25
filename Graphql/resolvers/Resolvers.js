@@ -16,19 +16,31 @@ const resolvers ={
         getProfiles: async (_, __, context)=>{
             try {
                 let user
-                if (context.req && context.req.headers.Authorization) {
-                  const token = context.req.headers.Authorization.split('Bearer ')[1]
+                  if (context.req && context.req.headers.Authorization) {
+                   const token = context.req.headers.Authorization.split('Bearer ')[1]
+                //    console.log(token)
                   jwt.verify(token, secret, (err, decodedToken) => {
                     if (err) {
                       throw new AuthenticationError('Unauthenticated')
                     }
                     user = decodedToken
+                    console.log('lena fama error')
+                    
                   })
+                
+                  
+                }else{
+                    const response = await Userdb.aggregate([{$sample: {size: 20}},
+                        //  {$match:{_id: { $ne: user_id}}}
+                         ]);
+                        //  console.log(response)
+                         return response
                 }
 
             const response = await Userdb.aggregate([{$sample: {size: 20}},
                 //  {$match:{_id: { $ne: user_id}}}
                  ]);
+                 
             return response
         }catch(err){
             console.log(err)
@@ -89,36 +101,13 @@ const resolvers ={
     },
     
     Mutation:{
-        // register: async(_,args) =>{
-        //     const { UserName , email , password , confirmPassword } = args
-
-        //     try{
-        //         const user  = new Userdb({
-        //             UserName,
-        //             email,
-        //             password
-        //         });
-        //         await user.save
-        //     return user
-
-        //     }catch(err){
-        //         console.log(err)
-        //     }
-        // },
 
         createNewUser: async (parent, args)=>{
             let {
                         Email,
                         Password,
                         UserName,
-                        // Country,
-                        // Images,
-                        // CarManufacturer,
-                        // CarModel,
-                        // CarProductionYear,
-                        // Likes,
-                        // Matchs,
-                        // Notinterested
+                        
                     } = args;
             let errors = {}
 
@@ -147,18 +136,13 @@ const resolvers ={
                             Email,
                             Password,
                             UserName ,
-                            // Country,
-                            // Images,
-                            // CarManufacturer,
-                            // CarModel,
-                            // CarProductionYear,
-                            // Likes,
-                            // Matchs,
-                            // Notinterested
                         });
 
                 await user.save();
-                return user;
+                const token = jwt.sign({ UserName } , secret , {expiresIn: 60 * 60});
+                user.Token = token;
+                return user
+                // return user;
         }catch(err){
             console.log(err);
             throw new UserInputError('Bad Input' , {errors: err})
